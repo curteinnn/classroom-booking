@@ -16,7 +16,7 @@ export default function Login() {
   return (
     <main
       ref={container}
-      className="min-h-screen bg-neutral-950 flex items-center justify-center px-6"
+      className="min-h-screen bg-grey-300 flex items-center justify-center px-6"
     >
       <div className="login-card w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl">
         <div className="login-title mb-8 text-center">
