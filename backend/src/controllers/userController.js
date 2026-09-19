@@ -15,6 +15,49 @@ const getUsers = (req, res) => {
   });
 };
 
+// LOGIN USER
+const loginUser = (req, res) => {
+  const { email, password } = req.body;
+
+  const sql = `
+    SELECT id, nama, email, password, role
+    FROM users
+    WHERE email = ?
+  `;
+
+  db.query(sql, [email], (err, results) => {
+    if (err) {
+      return res.status(500).json({
+        message: "Gagal melakukan login",
+      });
+    }
+
+    if (results.length === 0) {
+      return res.status(401).json({
+        message: "Email atau password salah",
+      });
+    }
+
+    const user = results[0];
+
+    if (user.password !== password) {
+      return res.status(401).json({
+        message: "Email atau password salah",
+      });
+    }
+
+    res.json({
+      message: "Login berhasil",
+      user: {
+        id: user.id,
+        nama: user.nama,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  });
+};
+
 // CREATE USER
 const createUser = (req, res) => {
   const { nama, email, password, role } = req.body;
@@ -94,4 +137,5 @@ module.exports = {
   createUser,
   updateUser,
   deleteUser,
+  loginUser,
 };
