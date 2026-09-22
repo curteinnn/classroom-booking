@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import gsap from "gsap";
 
 import loginAnimation from "../animations/loginAnimation";
 
@@ -39,8 +40,15 @@ export default function Login() {
       }
 
       console.log("User login:", data.user);
-
-      navigate("/home");
+      gsap.to(".login-card", {
+        opacity: 0,
+        y: -40,
+        duration: 0.5,
+        ease: "power3.in",
+        onComplete: () => {
+          navigate("/home");
+        },
+      });
     } catch (error) {
       setError("Tidak dapat terhubung ke server");
     } finally {
