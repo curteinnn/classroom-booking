@@ -73,7 +73,7 @@ export default function Login() {
       className="min-h-screen flex items-center justify-center px-6 bg-cover"
       style={{ backgroundImage: `url(${background})` }}
     >
-      <div className="login-card relative w-100 rounded-2xl bg-white p-8 shadow-2xl md:w-150">
+      <div className="login-card relative w-80 rounded-2xl bg-white p-8 m-10 shadow-2xl md:w-150">
         <img
           src={objek1}
           alt=""
@@ -100,7 +100,7 @@ export default function Login() {
 
         <form
           onSubmit={handleLogin}
-          className="login-form w-85 space-y-5 md:w-80"
+          className="login-form w-60 space-y-5 md:w-80"
         >
           <div className="">
             <label
