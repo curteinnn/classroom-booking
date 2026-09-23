@@ -15,7 +15,8 @@ Classroom Booking is designed to simplify classroom reservation by allowing user
 - React
 - Vite
 - JavaScript
-- CSS
+- Tailwind CSS
+- GSAP
 
 ### Backend
 
