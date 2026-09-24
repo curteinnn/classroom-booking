@@ -5,6 +5,7 @@ export default function loginAnimation(container) {
   const title = container.querySelector(".login-title");
   const form = container.querySelector(".login-form");
   const button = container.querySelector(".login-button");
+  const shine = container.querySelector(".smart-shine");
 
   const tl = gsap.timeline();
 
@@ -22,7 +23,7 @@ export default function loginAnimation(container) {
         duration: 0.5,
         ease: "power2.out",
       },
-      "-=0.4"
+      "-=0.4",
     )
     .from(
       form.children,
@@ -33,8 +34,12 @@ export default function loginAnimation(container) {
         stagger: 0.1,
         ease: "power2.out",
       },
-      "-=0.2"
+      "-=0.2",
     );
+
+  // =========================
+  // BUTTON HOVER
+  // =========================
 
   button.addEventListener("mouseenter", () => {
     gsap.to(button, {
@@ -49,4 +54,25 @@ export default function loginAnimation(container) {
       duration: 0.2,
     });
   });
+
+  // =========================
+  // SMARTCLASS SHINE
+  // =========================
+
+  if (shine) {
+    gsap.fromTo(
+      shine,
+      {
+        left: "110%",
+      },
+      {
+        left: "-20%",
+        duration: 1.2,
+        ease: "power2.inOut",
+        repeat: -1,
+        repeatDelay: 3.8,
+      },
+    );
+  }
+
 }

@@ -89,8 +89,12 @@ export default function Login() {
         <div className="login-title mb-8 text-left">
           <h1 className="text-3xl text-center font-bold text-black md:text-left">
             Welcome to <br />
-            <span className="text-blue-950">Smart</span>
-            <span className="text-blue-900">class</span>
+            <span className="smart-class relative inline-block overflow-hidden">
+              <span className="text-blue-950">Smart</span>
+              <span className="text-blue-900">class</span>
+
+              <span className="smart-shine pointer-events-none absolute -top-1/2 left-full h-[200%] w-8 rotate-[20deg] bg-gradient-to-b from-transparent via-white/80 to-transparent blur-sm" />
+            </span>
           </h1>
 
           <p className="mt-2 text-sm text-center text-neutral-500 md:text-left">
