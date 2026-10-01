@@ -73,7 +73,11 @@ export default function Login() {
       className="min-h-screen flex items-center justify-center px-6 bg-cover"
       style={{ backgroundImage: `url(${background})` }}
     >
+<<<<<<< HEAD
       <div className="login-card relative w-80 rounded-2xl bg-white p-8 m-10 shadow-2xl md:w-150">
+=======
+      <div className="login-card relative w-100 rounded-2xl bg-white p-8 shadow-2xl md:w-150">
+>>>>>>> feature/home
         <img
           src={objek1}
           alt=""
@@ -89,12 +93,17 @@ export default function Login() {
         <div className="login-title mb-8 text-left">
           <h1 className="text-3xl text-center font-bold text-black md:text-left">
             Welcome to <br />
+<<<<<<< HEAD
             <span className="smart-class relative inline-block overflow-hidden">
               <span className="text-blue-950">Smart</span>
               <span className="text-blue-900">class</span>
 
               <span className="smart-shine pointer-events-none absolute -top-1/2 left-full h-[200%] w-8 rotate-[20deg] bg-gradient-to-b from-transparent via-white/80 to-transparent blur-sm" />
             </span>
+=======
+            <span className="text-blue-950">Smart</span>
+            <span className="text-blue-900">class</span>
+>>>>>>> feature/home
           </h1>
 
           <p className="mt-2 text-sm text-center text-neutral-500 md:text-left">
@@ -104,7 +113,11 @@ export default function Login() {
 
         <form
           onSubmit={handleLogin}
+<<<<<<< HEAD
           className="login-form w-60 space-y-5 md:w-80"
+=======
+          className="login-form w-85 space-y-5 md:w-80"
+>>>>>>> feature/home
         >
           <div className="">
             <label
