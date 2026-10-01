@@ -1,7 +1,7 @@
 const db = require("../config/database");
 
 // GET BOOKINGS
-const getBookings = (req, res) => {
+const getBookings = (_, res) => {
   const sql = `
     SELECT
       bookings.id,
