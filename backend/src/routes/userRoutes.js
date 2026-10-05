@@ -1,5 +1,4 @@
 const express = require("express");
-
 const router = express.Router();
 
 const {
@@ -7,7 +6,7 @@ const {
   createUser,
   updateUser,
   deleteUser,
-  loginUser
+  loginUser,
 } = require("../controllers/userController");
 
 router.post("/login", loginUser);
