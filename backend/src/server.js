@@ -1,24 +1,9 @@
-const express = require("express");
-const cors = require("cors");
+require("dotenv").config();
 
-const roomRoutes = require("./routes/roomRoutes");
-const userRoutes = require("./routes/userRoutes");
-const bookingRoutes = require("./routes/bookingRoutes");
+const app = require("./app");
 
-const app = express();
-const PORT = 3000;
-
-app.use(express.json());
-app.use(cors()); //MIDDLEWARE buat akses izin
-
-app.get("/", (req, res) => {
-  res.send("Backend classroom booking jalan!");
-});
-
-app.use("/api/rooms", roomRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/booking", bookingRoutes);
+const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(`Server berjalan di http://localhost:${PORT}`);
+  console.log(`SmartClass API running on port ${PORT}`);
 });

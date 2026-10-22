@@ -1,19 +1,15 @@
-const mysql = require("mysql2");
-
-const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "classroom_booking",
+require("dotenv").config({
+  path: require("path").resolve(__dirname, "../../.env"),
 });
 
-db.connect((err) => {
-  if (err) {
-    console.error("Koneksi database gagal:", err.message);
-    return;
-  }
+const mysql = require("mysql2/promise");
 
-  console.log("MySQL berhasil terhubung!");
+const db = mysql.createPool({
+  host: process.env.DB_HOST,
+  port: Number(process.env.DB_PORT || 3306),
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD || "",
+  database: process.env.DB_NAME,
 });
 
 module.exports = db;
