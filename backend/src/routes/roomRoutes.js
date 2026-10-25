@@ -159,6 +159,48 @@ router.put("/:id", requireAuth, requireAdmin, async (req, res) => {
   }
 });
 
+router.delete("/:id", requireAuth, requireAdmin, async (req, res) => {
+  const roomId = Number(req.params.id);
+  if (!Number.isSafeInteger(roomId) || roomId < 1) {
+    return res.status(400).json({ message: "ID ruangan tidak valid." });
+  }
+
+  const connection = await db.getConnection();
+  try {
+    await connection.beginTransaction();
+
+    const [rooms] = await connection.execute(
+      "SELECT id FROM rooms WHERE id = ? FOR UPDATE",
+      [roomId],
+    );
+    if (rooms.length === 0) {
+      await connection.rollback();
+      return res.status(404).json({ message: "Ruangan tidak ditemukan." });
+    }
+
+    const [bookings] = await connection.execute(
+      "SELECT id FROM bookings WHERE room_id = ? LIMIT 1",
+      [roomId],
+    );
+    if (bookings.length > 0) {
+      await connection.rollback();
+      return res.status(409).json({
+        message: "Ruangan memiliki riwayat booking. Nonaktifkan ruangan agar riwayat tetap tersimpan.",
+      });
+    }
+
+    await connection.execute("DELETE FROM rooms WHERE id = ?", [roomId]);
+    await connection.commit();
+    return res.status(200).json({ message: "Ruangan berhasil dihapus." });
+  } catch (error) {
+    await connection.rollback();
+    console.error("Delete room failed:", error.message);
+    return res.status(500).json({ message: "Gagal menghapus ruangan." });
+  } finally {
+    connection.release();
+  }
+});
+
 ///////////////////////////
 
 router.patch("/:id/status", requireAuth, requireAdmin, async (req, res) => {

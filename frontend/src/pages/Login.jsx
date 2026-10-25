@@ -33,12 +33,13 @@ export default function Login() {
         }),
       });
       saveSession(data);
+      const destination = data.user?.role === "admin" ? "/admin" : "/home";
       gsap.to(".login-card", {
         opacity: 0,
         duration: 1.5,
         ease: "power3.in",
         onComplete: () => {
-          navigate("/home");
+          navigate(destination);
         },
       });
     } catch (error) {

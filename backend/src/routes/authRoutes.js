@@ -2,8 +2,13 @@ const express = require("express");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const db = require("../config/database");
+const requireAuth = require("../middleware/requireAuth");
 
 const router = express.Router();
+
+router.get("/me", requireAuth, (req, res) => {
+  return res.status(200).json({ user: req.user });
+});
 
 router.post("/login", async (req, res) => {
   try {
@@ -34,7 +39,7 @@ router.post("/login", async (req, res) => {
       [rows] = await db.execute(
         `SELECT id, nama, identifier, email, password_hash, role, is_active
          FROM users
-         WHERE email = ?
+         WHERE LOWER(email) = ?
          LIMIT 1`,
         [loginIdentifier.toLowerCase()],
       );

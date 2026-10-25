@@ -137,6 +137,41 @@ router.get("/users", requireAuth, requireAdmin, async (req, res) => {
   }
 });
 
+router.patch("/users/:id/status", requireAuth, requireAdmin, async (req, res) => {
+  const userId = Number(req.params.id);
+  const { is_active } = req.body || {};
+
+  if (!Number.isSafeInteger(userId) || userId < 1) {
+    return res.status(400).json({ message: "ID pengguna tidak valid." });
+  }
+  if (![0, 1, true, false].includes(is_active)) {
+    return res.status(400).json({ message: "is_active harus bernilai 0 atau 1." });
+  }
+
+  try {
+    const [users] = await db.execute(
+      "SELECT id, role FROM users WHERE id = ? LIMIT 1",
+      [userId],
+    );
+    if (users.length === 0) {
+      return res.status(404).json({ message: "Pengguna tidak ditemukan." });
+    }
+    if (users[0].role === "admin") {
+      return res.status(403).json({ message: "Status akun admin tidak dapat diubah dari menu ini." });
+    }
+
+    const activeStatus = Number(is_active);
+    await db.execute("UPDATE users SET is_active = ? WHERE id = ?", [activeStatus, userId]);
+    return res.status(200).json({
+      message: activeStatus ? "Akun berhasil diaktifkan." : "Akun berhasil dinonaktifkan.",
+      user: { id: userId, is_active: activeStatus },
+    });
+  } catch (error) {
+    console.error("Update user status failed:", error.message);
+    return res.status(500).json({ message: "Gagal mengubah status pengguna." });
+  }
+});
+
 //////////////////////////////////////////////////BOOKING KELAS KING///////////////
 ///////////////////////////////////////////////////////////////////////////
 router.get("/bookings", requireAuth, requireAdmin, async (req, res) => {

@@ -44,12 +44,15 @@ Start the backend with `npm run dev` from `backend/`, then start the frontend wi
 
 ## API routes
 
-- `POST /api/auth/login` — authenticate with `identifier` and `password`
+- `POST /api/auth/login` — authenticate with `identifier` or email and `password`
+- `GET /api/auth/me` — return the current authenticated account
 - `POST /api/activation/complete` — complete account activation
 - `GET /api/health` — API and database connectivity status
 - `/api/admin/users` — create and list users (admin)
+- `PATCH /api/admin/users/:id/status` — activate/deactivate a non-admin account (admin)
 - `/api/admin/bookings` — list bookings; `PATCH /:id/status` to approve/reject (admin)
-- `/api/admin/rooms` — list/create/update rooms and room status (admin)
+- `/api/admin/rooms` — list/create/update/delete rooms and room status (admin)
+- `DELETE /api/admin/rooms/:id` — delete a room only if it has no booking history (admin)
 - `GET /api/admin/rooms/search/available` — search available rooms (authenticated)
 - `GET /api/admin/rooms/:id/schedule` — room schedule (authenticated)
 - `GET /api/admin/rooms/search` — search rooms by name (authenticated)
