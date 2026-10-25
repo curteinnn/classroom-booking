@@ -1,50 +1,9 @@
-import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import { getCurrentUser } from "../../features/auth/authApi";
-import { getSession } from "../../shared/auth/sessionStore";
+import useRoleAccess from "./useRoleAccess";
 
 export default function RoleRoute({ children, allowedRoles }) {
-  const session = getSession();
-  const [attempt, setAttempt] = useState(0);
-  const [access, setAccess] = useState({
-    status: "checking",
-    role: null,
-    error: "",
-  });
-
-  useEffect(() => {
-    if (!session?.token) return undefined;
-
-    let active = true;
-    setAccess({ status: "checking", role: null, error: "" });
-
-    getCurrentUser()
-      .then(({ user }) => {
-        if (active) {
-          setAccess({
-            status: "ready",
-            role: String(user?.role || "")
-              .trim()
-              .toLowerCase(),
-            error: "",
-          });
-        }
-      })
-      .catch((error) => {
-        if (!active) return;
-        if (error.status === 401) {
-          setAccess({ status: "unauthenticated", role: null, error: "" });
-        } else {
-          setAccess({ status: "error", role: null, error: error.message });
-        }
-      });
-
-    return () => {
-      active = false;
-    };
-  }, [session?.token, attempt]);
-
-  if (!session?.token) return <Navigate to="/" replace />;
+  const { access, redirectTo, retry } = useRoleAccess(allowedRoles);
+  if (redirectTo) return <Navigate to={redirectTo} replace />;
 
   if (access.status === "checking") {
     return (
@@ -66,7 +25,7 @@ export default function RoleRoute({ children, allowedRoles }) {
           </p>
           <button
             type="button"
-            onClick={() => setAttempt((value) => value + 1)}
+            onClick={retry}
             className="mt-4 rounded-lg bg-blue-700 px-4 py-2 font-medium text-white"
           >
             Coba lagi
@@ -76,14 +35,7 @@ export default function RoleRoute({ children, allowedRoles }) {
     );
   }
 
-  if (access.status === "unauthenticated" || !access.role) {
-    return <Navigate to="/" replace />;
-  }
-
-  if (!allowedRoles.includes(access.role)) {
-    if (access.role === "admin") return <Navigate to="/admin" replace />;
-    if (["mahasiswa", "dosen"].includes(access.role))
-      return <Navigate to="/home" replace />;
+  if (access.status === "ready" && !allowedRoles.includes(access.role)) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-slate-50 px-5">
         <section className="max-w-md rounded-2xl bg-white p-6 text-center shadow-sm">

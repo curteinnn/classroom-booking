@@ -1,7 +1,10 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePageAnimations } from "../../../animations/cardAnimations";
 import { cancelBooking, getMyBookings } from "../bookingsApi";
 
 export default function useBookingHistory() {
+  const pageRef = useRef(null);
+  usePageAnimations(pageRef);
   const [bookings, setBookings] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -32,5 +35,9 @@ export default function useBookingHistory() {
     }
   }
 
-  return { bookings, error, loading, cancel };
+  function handleCancel(event) {
+    cancel(event.currentTarget.dataset.bookingId);
+  }
+
+  return { pageRef, bookings, error, loading, handleCancel };
 }
