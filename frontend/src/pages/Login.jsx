@@ -8,11 +8,12 @@ import objek1 from "../assets/object1.png";
 import unindra from "../assets/unindra.png";
 
 import loginAnimation from "../animations/loginAnimation";
+import { apiRequest, saveSession } from "../services/api";
 
 export default function Login() {
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -24,25 +25,14 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:3000/api/users/login", {
+      const data = await apiRequest("/api/auth/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
-          email,
+          identifier,
           password,
         }),
       });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data.message);
-        return;
-      }
-
-      console.log("User login:", data.user);
+      saveSession(data);
       gsap.to(".login-card", {
         opacity: 0,
         duration: 1.5,
@@ -52,7 +42,7 @@ export default function Login() {
         },
       });
     } catch (error) {
-      setError("Tidak dapat terhubung ke server");
+      setError(error.message);
     } finally {
       setLoading(false);
     }
@@ -108,18 +98,19 @@ export default function Login() {
         >
           <div className="">
             <label
-              htmlFor="email"
+              htmlFor="identifier"
               className="mb-2 block text-sm font-medium text-neutral-700"
             >
-              Email
+              Email atau identifier
             </label>
 
             <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Masukkan email"
+              id="identifier"
+              type="text"
+              autoComplete="username"
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
+              placeholder="Masukkan email atau identifier"
               className="w-full rounded-xl border border-neutral-300 px-4 py-3 outline-none transition focus:border-neutral-900"
               required
             />

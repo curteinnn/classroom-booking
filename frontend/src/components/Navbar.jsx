@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom";
 import logo from "../assets/logo.png";
+import { clearSession, getSession } from "../services/api";
 
 export default function Navbar() {
+  const session = getSession();
+
   return (
     <nav className="absolute top-0 h-12 left-0 z-50 w-full bg-white px-8 md:block">
       <div className="flex h-12 items-center justify-between">
@@ -28,8 +31,20 @@ export default function Navbar() {
           </Link>
         </div>
 
-        <div className="flex h-9 w-9 bg-black items-center justify-center rounded-full text-sm font-bold text-white">
-          A
+        <div className="flex items-center gap-3">
+          <span className="hidden text-sm text-slate-600 sm:inline">
+            {session?.user?.nama || session?.user?.identifier}
+          </span>
+          <button
+            type="button"
+            onClick={() => {
+              clearSession();
+              window.location.assign("/");
+            }}
+            className="rounded-lg bg-slate-100 px-3 py-2 text-sm text-slate-700 hover:bg-slate-200"
+          >
+            Keluar
+          </button>
         </div>
       </div>
     </nav>

@@ -1,6 +1,7 @@
 const express = require("express");
 const db = require("../config/database");
 const requireAuth = require("../middleware/requireAuth");
+const { isValidDate, normalizeTime } = require("../utils/validation");
 
 const router = express.Router();
 
@@ -17,12 +18,9 @@ router.post("/", requireAuth, async (req, res) => {
   }
 
   if (
-    typeof tanggal !== "string" ||
-    !/^\d{4}-\d{2}-\d{2}$/.test(tanggal) ||
-    typeof jam_mulai !== "string" ||
-    !/^\d{2}:\d{2}(:\d{2})?$/.test(jam_mulai) ||
-    typeof jam_selesai !== "string" ||
-    !/^\d{2}:\d{2}(:\d{2})?$/.test(jam_selesai) ||
+    !isValidDate(tanggal) ||
+    !normalizeTime(jam_mulai) ||
+    !normalizeTime(jam_selesai) ||
     typeof tujuan !== "string" ||
     !tujuan.trim() ||
     tujuan.trim().length > 255
@@ -33,8 +31,8 @@ router.post("/", requireAuth, async (req, res) => {
     });
   }
 
-  const startTime = jam_mulai.length === 5 ? `${jam_mulai}:00` : jam_mulai;
-  const endTime = jam_selesai.length === 5 ? `${jam_selesai}:00` : jam_selesai;
+  const startTime = normalizeTime(jam_mulai);
+  const endTime = normalizeTime(jam_selesai);
 
   if (startTime >= endTime) {
     return res.status(400).json({
@@ -223,35 +221,81 @@ router.patch("/:id/cancel", requireAuth, async (req, res) => {
     });
   }
 
+  const connection = await db.getConnection();
+
   try {
-    const [result] = await db.execute(
-      `UPDATE bookings
-       SET status = 'cancelled'
-       WHERE id = ?
-         AND user_id = ?
-         AND status = 'pending'`,
+    await connection.beginTransaction();
+
+    // Cari booking milik pengguna yang sedang login.
+    const [rows] = await connection.execute(
+      `SELECT
+         id,
+         room_id,
+         tanggal,
+         jam_mulai,
+         status
+       FROM bookings
+       WHERE id = ? AND user_id = ?
+       FOR UPDATE`,
       [bookingId, req.user.id],
     );
 
-    if (result.affectedRows === 0) {
-      const [rows] = await db.execute(
-        `SELECT id, status
-         FROM bookings
-         WHERE id = ? AND user_id = ?`,
-        [bookingId, req.user.id],
-      );
+    if (rows.length === 0) {
+      await connection.rollback();
 
-      if (rows.length === 0) {
-        return res.status(404).json({
-          message: "Booking tidak ditemukan.",
-        });
-      }
-
-      return res.status(409).json({
-        message: "Hanya booking berstatus pending yang bisa dibatalkan.",
-        status: rows[0].status,
+      return res.status(404).json({
+        message: "Booking tidak ditemukan.",
       });
     }
+
+    const booking = rows[0];
+
+    if (!["pending", "approved"].includes(booking.status)) {
+      await connection.rollback();
+
+      return res.status(409).json({
+        message: "Booking ini tidak dapat dibatalkan.",
+        status: booking.status,
+      });
+    }
+
+    // Cek waktu saat ini berdasarkan tanggal dan waktu database.
+    const [timeRows] = await connection.execute(`
+      SELECT
+        CURDATE() AS today,
+        CURTIME() AS db_time
+    `);
+
+    const today = String(timeRows[0].today).slice(0, 10);
+    const now = String(timeRows[0].db_time).slice(0, 8);
+
+    const bookingDate =
+      booking.tanggal instanceof Date
+        ? [
+            booking.tanggal.getFullYear(),
+            String(booking.tanggal.getMonth() + 1).padStart(2, "0"),
+            String(booking.tanggal.getDate()).padStart(2, "0"),
+          ].join("-")
+        : String(booking.tanggal).slice(0, 10);
+
+    const startTime = String(booking.jam_mulai).slice(0, 8);
+
+    if (bookingDate < today || (bookingDate === today && now >= startTime)) {
+      await connection.rollback();
+
+      return res.status(409).json({
+        message: "Booking tidak dapat dibatalkan setelah jadwal dimulai.",
+      });
+    }
+
+    await connection.execute(
+      `UPDATE bookings
+       SET status = 'cancelled'
+       WHERE id = ? AND user_id = ?`,
+      [bookingId, req.user.id],
+    );
+
+    await connection.commit();
 
     return res.status(200).json({
       message: "Booking berhasil dibatalkan.",
@@ -261,11 +305,15 @@ router.patch("/:id/cancel", requireAuth, async (req, res) => {
       },
     });
   } catch (error) {
+    await connection.rollback();
+
     console.error("Cancel booking failed:", error.message);
 
     return res.status(500).json({
       message: "Gagal membatalkan booking.",
     });
+  } finally {
+    connection.release();
   }
 });
 

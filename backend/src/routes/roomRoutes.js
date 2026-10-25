@@ -2,6 +2,7 @@ const express = require("express");
 const db = require("../config/database");
 const requireAuth = require("../middleware/requireAuth");
 const requireAdmin = require("../middleware/requireAdmin");
+const { isValidDate, normalizeTime } = require("../utils/validation");
 
 const router = express.Router();
 
@@ -222,6 +223,223 @@ router.patch("/:id/status", requireAuth, requireAdmin, async (req, res) => {
 
     return res.status(500).json({
       message: "Gagal mengubah status ruangan.",
+    });
+  }
+});
+
+//////////////schedule
+//////////////////////////////
+router.get("/:id/schedule", requireAuth, async (req, res) => {
+  const roomId = Number(req.params.id);
+  const { tanggal } = req.query;
+
+  if (!Number.isSafeInteger(roomId) || roomId < 1) {
+    return res.status(400).json({
+      message: "ID ruangan tidak valid.",
+    });
+  }
+
+  if (!isValidDate(tanggal)) {
+    return res.status(400).json({
+      message: "Parameter tanggal wajib diisi dengan format YYYY-MM-DD.",
+    });
+  }
+
+  try {
+    const [rooms] = await db.execute(
+      `SELECT id, nama_ruangan, kapasitas, lokasi, is_active
+       FROM rooms
+       WHERE id = ?`,
+      [roomId],
+    );
+
+    if (rooms.length === 0) {
+      return res.status(404).json({
+        message: "Ruangan tidak ditemukan.",
+      });
+    }
+
+    const [bookings] = await db.execute(
+      `SELECT
+         id,
+         tanggal,
+         jam_mulai,
+         jam_selesai,
+         status
+       FROM bookings
+       WHERE room_id = ?
+         AND tanggal = ?
+         AND status IN ('pending', 'approved')
+       ORDER BY jam_mulai ASC`,
+      [roomId, tanggal],
+    );
+
+    return res.status(200).json({
+      message: "Jadwal ruangan berhasil diambil.",
+      room: rooms[0],
+      tanggal,
+      bookings,
+    });
+  } catch (error) {
+    console.error("Get room schedule failed:", error.message);
+
+    return res.status(500).json({
+      message: "Gagal mengambil jadwal ruangan.",
+    });
+  }
+});
+
+////////////////////////searchh available////////////////////////
+//////////////////////////////////////////////////////////
+
+router.get("/search/available", requireAuth, async (req, res) => {
+  const { tanggal, jam_mulai, jam_selesai, kapasitas, lokasi } = req.query;
+
+  if (
+    !isValidDate(tanggal) ||
+    !normalizeTime(jam_mulai) ||
+    !normalizeTime(jam_selesai)
+  ) {
+    return res.status(400).json({
+      message: "Tanggal dan jam wajib diisi dengan format yang benar.",
+    });
+  }
+
+  const startTime = normalizeTime(jam_mulai);
+  const endTime = normalizeTime(jam_selesai);
+
+  if (startTime >= endTime) {
+    return res.status(400).json({
+      message: "Jam selesai harus lebih besar daripada jam mulai.",
+    });
+  }
+
+  let minCapacity = 1;
+
+  if (kapasitas !== undefined) {
+    minCapacity = Number(kapasitas);
+
+    if (
+      !Number.isSafeInteger(minCapacity) ||
+      minCapacity < 1 ||
+      minCapacity > 50
+    ) {
+      return res.status(400).json({
+        message: "Kapasitas harus berupa angka antara 1 dan 50.",
+      });
+    }
+  }
+
+  try {
+    const [dateRows] = await db.execute(`
+      SELECT
+        DATE_FORMAT(CURDATE(), '%Y-%m-%d') AS today,
+        DATE_FORMAT(
+          DATE_ADD(CURDATE(), INTERVAL 6 DAY),
+          '%Y-%m-%d'
+        ) AS max_date,
+        TIME_FORMAT(CURTIME(), '%H:%i:%s') AS db_time
+    `);
+
+    const { today, max_date: maxDate, db_time: dbTime } = dateRows[0];
+
+    if (tanggal < today || tanggal > maxDate) {
+      return res.status(400).json({
+        message: "Pencarian hanya bisa dilakukan untuk hari ini sampai H+6.",
+      });
+    }
+
+    if (tanggal === today && startTime <= dbTime) {
+      return res.status(400).json({
+        message: "Jam mulai harus lebih besar daripada waktu sekarang.",
+      });
+    }
+
+    const [rooms] = await db.execute(
+      `SELECT
+         r.id,
+         r.nama_ruangan,
+         r.kapasitas,
+         r.lokasi
+       FROM rooms r
+       WHERE r.is_active = 1
+         AND r.kapasitas >= ?
+         AND (? IS NULL OR r.lokasi = ?)
+         AND NOT EXISTS (
+           SELECT 1
+           FROM bookings b
+           WHERE b.room_id = r.id
+             AND b.tanggal = ?
+             AND b.status IN ('pending', 'approved')
+             AND b.jam_mulai < ?
+             AND b.jam_selesai > ?
+         )
+       ORDER BY r.kapasitas ASC, r.nama_ruangan ASC`,
+      [
+        minCapacity,
+        lokasi || null,
+        lokasi || null,
+        tanggal,
+        endTime,
+        startTime,
+      ],
+    );
+
+    return res.status(200).json({
+      message: "Pencarian ruangan berhasil.",
+      total: rooms.length,
+      filters: {
+        tanggal,
+        jam_mulai: startTime,
+        jam_selesai: endTime,
+        kapasitas: minCapacity,
+      },
+      rooms,
+    });
+  } catch (error) {
+    console.error("Search available rooms failed:", error.message);
+
+    return res.status(500).json({
+      message: "Gagal mencari ruangan yang tersedia.",
+    });
+  }
+});
+
+///////////////////////////////search berdasarkan nama ruangan///////////
+///////////////////////////////////////
+
+router.get("/search", requireAuth, async (req, res) => {
+  const { nama_ruangan } = req.query;
+
+  if (typeof nama_ruangan !== "string" || !nama_ruangan.trim()) {
+    return res.status(400).json({
+      message: "Nama ruangan wajib diisi.",
+    });
+  }
+
+  try {
+    const [rooms] = await db.execute(
+      `SELECT id, nama_ruangan, kapasitas, lokasi, is_active
+       FROM rooms
+       WHERE nama_ruangan LIKE ?
+       ORDER BY nama_ruangan ASC
+       LIMIT 20`,
+      [`%${nama_ruangan.trim()}%`],
+    );
+
+    return res.status(200).json({
+      message:
+        rooms.length > 0
+          ? "Ruangan berhasil ditemukan."
+          : "Ruangan tidak ditemukan.",
+      total: rooms.length,
+      rooms,
+    });
+  } catch (error) {
+    console.error("Search rooms failed:", error.message);
+
+    return res.status(500).json({
+      message: "Gagal mencari ruangan.",
     });
   }
 });

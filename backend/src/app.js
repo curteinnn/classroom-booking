@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const db = require("./config/database");
 const activationRoutes = require("./routes/activationRoutes");
 const authRoutes = require("./routes/authRoutes");
@@ -12,7 +13,32 @@ const bookingRoutes = require("./routes/bookingRoutes");
 
 const app = express();
 
-app.use(express.json());
+const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      const error = new Error("Origin tidak diizinkan oleh kebijakan CORS.");
+      error.status = 403;
+      return callback(error);
+    },
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+);
+app.use(express.json({ limit: "32kb" }));
+
+app.use((req, res, next) => {
+  console.info("Request:", req.method, req.path);
+  next();
+});
 
 app.use("/api/auth", authRoutes);
 app.use("/api/activation", activationRoutes);
@@ -22,12 +48,11 @@ app.use("/api/bookings", bookingRoutes);
 
 app.get("/api/health", async (req, res) => {
   try {
-    const [rows] = await db.query("SELECT DATABASE() AS database_name");
+    await db.query("SELECT 1");
 
     res.status(200).json({
       status: "ok",
       message: "SmartClass API is running",
-      database: rows[0].database_name,
     });
   } catch (error) {
     console.error("Health check failed:", error.message);
@@ -47,10 +72,11 @@ app.get("/api/admin/test", requireAuth, requireAdmin, (req, res) => {
 });
 
 app.use((err, req, res, next) => {
+  void next;
+
   if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
     return res.status(400).json({
-      message:
-        "Body JSON tidak valid atau kosong. Untuk GET, kosongkan Body di Postman.",
+      message: "Format JSON tidak valid. Periksa kembali Body request.",
     });
   }
 

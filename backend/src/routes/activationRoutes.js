@@ -6,17 +6,17 @@ const db = require("../config/database");
 const router = express.Router();
 
 router.post("/complete", async (req, res) => {
-  const { token, password } = req.body;
+  const { token, password } = req.body || {};
 
   if (
     typeof token !== "string" ||
     typeof password !== "string" ||
     password.length < 12 ||
-    password.length > 72
+    Buffer.byteLength(password, "utf8") > 72
   ) {
     return res.status(400).json({
       message:
-        "Token atau password tidak valid. Password harus 12–72 karakter.",
+        "Token atau password tidak valid. Password minimal 12 karakter dan maksimal 72 byte.",
     });
   }
 

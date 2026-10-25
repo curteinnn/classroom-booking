@@ -1,182 +1,68 @@
-# Classroom Booking
+# SmartClass Classroom Booking
 
-A full-stack web application for managing and booking classrooms.
+Web application for account activation and classroom booking.
 
-Classroom Booking is designed to simplify classroom reservation by allowing users to view available rooms, create bookings, and manage their reservations through a web interface.
+## Stack
 
-> 🚧 This project is currently under development.
+- Frontend: React, Vite, React Router, Tailwind CSS, GSAP
+- Backend: Node.js, Express, MySQL (`mysql2`), JWT, bcrypt, Nodemailer
+- Dependency managers: npm, with separate manifests in `frontend/` and `backend/`
 
----
-
-## Tech Stack
-
-### Frontend
-
-- React
-- Vite
-- JavaScript
-- Tailwind CSS
-- GSAP
-
-### Backend
-
-- Node.js
-- Express.js
-- REST API
-
-### Database
-
-- MySQL
-- XAMPP
-- phpMyAdmin
-
-### Development Tools
-
-- Visual Studio Code
-- Postman
-- Git & GitHub
-
----
-
-## Features
-
-### User Management
-
-- Create users
-- View users
-- Update users
-- Delete users
-
-### Classroom Management
-
-- Add classrooms
-- View available classrooms
-- Update classroom information
-- Delete classrooms
-
-### Booking Management
-
-- Create classroom bookings
-- View booking data
-- Update booking status
-- Delete bookings
-- Validate classroom booking data
-
----
-
-## Project Structure
+## Project structure
 
 ```text
-classroom-booking/
-│
-├── backend/
-│   ├── src/
-│   │   ├── config/
-│   │   │   └── database.js
-│   │   ├── controllers/
-│   │   ├── routes/
-│   │   └── server.js
-│   │
-│   ├── .env.example
-│   ├── package.json
-│   └── package-lock.json
-│
-├── frontend/
-│   ├── public/
-│   ├── src/
-│   ├── package.json
-│   ├── package-lock.json
-│   └── vite.config.js
-│
-├── .gitignore
-└── README.md
-Database
+frontend/src/
+  pages/          Login, home, rooms, booking history, account activation
+  components/     Shared navigation
+  services/       API client and browser session storage
+  animations/     GSAP page animations
+backend/src/
+  app.js          Express middleware and mounted routes
+  server.js       Backend process entry point
+  config/         MySQL connection pool
+  routes/         Auth, activation, admin, rooms, and bookings APIs
+  middleware/     Authentication and admin authorization
+  services/       Activation token and email delivery
+```
 
-The application uses MySQL as its database.
+## Run locally
 
-Main Tables
-Table	Description
-users	Stores user information
-rooms	Stores classroom information
-bookings	Stores classroom booking records
-Database Relationship
-Users
-  │
-  └── Bookings
-          │
-          └── Rooms
-API
+Install dependencies separately in `backend/` and `frontend/` using `npm install`.
+Configure the backend environment locally with the database, JWT, application URL,
+SMTP, and CORS settings required by the code. Do not commit secret values.
+The backend reads `PORT`, `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`,
+`DB_NAME`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `APP_BASE_URL`, `SMTP_HOST`,
+`SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`, and
+`CORS_ORIGIN`.
+The frontend optionally reads `VITE_API_BASE_URL`; it defaults to the local API
+address on port 3000. The backend allows the Vite development origin on port 5173
+by default; set `CORS_ORIGIN` to a comma-separated list of trusted origins when
+needed.
 
-The backend provides a REST API for communication between the frontend and database.
+Start the backend with `npm run dev` from `backend/`, then start the frontend with
+`npm run dev` from `frontend/`.
 
-Users
-GET    /api/users
-GET    /api/users/:id
-POST   /api/users
-PUT    /api/users/:id
-DELETE /api/users/:id
-Rooms
-GET    /api/rooms
-GET    /api/rooms/:id
-POST   /api/rooms
-PUT    /api/rooms/:id
-DELETE /api/rooms/:id
-Bookings
-GET    /api/bookings
-GET    /api/bookings/:id
-POST   /api/bookings
-PUT    /api/bookings/:id
-DELETE /api/bookings/:id
+## API routes
 
-API endpoints may change during development.
+- `POST /api/auth/login` — authenticate with `identifier` and `password`
+- `POST /api/activation/complete` — complete account activation
+- `GET /api/health` — API and database connectivity status
+- `/api/admin/users` — create and list users (admin)
+- `/api/admin/bookings` — list bookings; `PATCH /:id/status` to approve/reject (admin)
+- `/api/admin/rooms` — list/create/update rooms and room status (admin)
+- `GET /api/admin/rooms/search/available` — search available rooms (authenticated)
+- `GET /api/admin/rooms/:id/schedule` — room schedule (authenticated)
+- `GET /api/admin/rooms/search` — search rooms by name (authenticated)
+- `POST /api/bookings` — submit a booking (authenticated)
+- `GET /api/bookings/my` — list the current user's bookings (authenticated)
+- `PATCH /api/bookings/:id/cancel` — cancel the current user's booking (authenticated)
 
-Installation
-1. Clone the Repository
-git clone <repository-url>
-cd classroom-booking
-2. Backend Setup
+The frontend stores the login token in browser local storage and sends it as a
+Bearer token for protected API requests. The backend verifies account status on
+each authenticated request.
 
-Navigate to the backend directory:
+## Database
 
-cd backend
-
-Install dependencies:
-
-npm install
-
-Create a .env file inside the backend folder and configure the database:
-
-PORT=5000
-
-DB_HOST=localhost
-DB_USER=root
-DB_PASSWORD=
-DB_NAME=classroom_booking
-
-Make sure MySQL is running through XAMPP.
-
-Start the backend:
-
-npm run dev
-3. Frontend Setup
-
-Open another terminal and navigate to the frontend directory:
-
-cd frontend
-
-Install dependencies:
-
-npm install
-
-Start the frontend:
-
-npm run dev
-Environment Variables
-
-The actual .env file should not be committed to GitHub.
-
-Use .env.example as a template for the required environment variables.
-
-Development Status
-
-🚧 This project is currently under development.
+The application queries the MySQL tables `users`, `rooms`, `bookings`, and
+`account_activation_tokens`. The repository does not currently include schema
+migrations; create and maintain the database schema separately.
