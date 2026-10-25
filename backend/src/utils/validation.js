@@ -27,4 +27,18 @@ function normalizeTime(value) {
   return `${hour}:${minute}:${second}`;
 }
 
-module.exports = { isValidDate, normalizeTime };
+function parseCapacity(value) {
+  if (
+    typeof value !== "number" &&
+    !(typeof value === "string" && /^\d+$/.test(value.trim()))
+  ) {
+    return null;
+  }
+
+  const capacity = Number(value);
+  return Number.isSafeInteger(capacity) && capacity >= 1 && capacity <= 50
+    ? capacity
+    : null;
+}
+
+module.exports = { isValidDate, normalizeTime, parseCapacity };

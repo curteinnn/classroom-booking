@@ -2,7 +2,11 @@ const express = require("express");
 const db = require("../config/database");
 const requireAuth = require("../middleware/requireAuth");
 const requireAdmin = require("../middleware/requireAdmin");
-const { isValidDate, normalizeTime } = require("../utils/validation");
+const {
+  isValidDate,
+  normalizeTime,
+  parseCapacity,
+} = require("../utils/validation");
 
 const router = express.Router();
 
@@ -33,18 +37,14 @@ router.get("/", requireAuth, requireAdmin, async (req, res) => {
 //////////////////////////////////
 router.post("/", requireAuth, requireAdmin, async (req, res) => {
   const { nama_ruangan, kapasitas, lokasi } = req.body || {};
+  const parsedCapacity = parseCapacity(kapasitas);
 
   if (
     typeof nama_ruangan !== "string" ||
     !nama_ruangan.trim() ||
     typeof lokasi !== "string" ||
     !lokasi.trim() ||
-    kapasitas === undefined ||
-    kapasitas === null ||
-    kapasitas === "" ||
-    !Number.isInteger(Number(kapasitas)) ||
-    Number(kapasitas) < 1 ||
-    Number(kapasitas) > 50
+    parsedCapacity === null
   ) {
     return res.status(400).json({
       message:
@@ -62,7 +62,7 @@ router.post("/", requireAuth, requireAdmin, async (req, res) => {
     const [result] = await db.execute(
       `INSERT INTO rooms (nama_ruangan, kapasitas, lokasi, is_active)
        VALUES (?, ?, ?, 1)`,
-      [nama_ruangan.trim(), Number(kapasitas), lokasi.trim()],
+      [nama_ruangan.trim(), parsedCapacity, lokasi.trim()],
     );
 
     return res.status(201).json({
@@ -70,7 +70,7 @@ router.post("/", requireAuth, requireAdmin, async (req, res) => {
       room: {
         id: result.insertId,
         nama_ruangan: nama_ruangan.trim(),
-        kapasitas: Number(kapasitas),
+        kapasitas: parsedCapacity,
         lokasi: lokasi.trim(),
         is_active: 1,
       },
@@ -94,6 +94,7 @@ router.post("/", requireAuth, requireAdmin, async (req, res) => {
 router.put("/:id", requireAuth, requireAdmin, async (req, res) => {
   const id = Number(req.params.id);
   const { nama_ruangan, kapasitas, lokasi } = req.body || {};
+  const parsedCapacity = parseCapacity(kapasitas);
 
   if (!Number.isSafeInteger(id) || id < 1) {
     return res.status(400).json({
@@ -106,12 +107,7 @@ router.put("/:id", requireAuth, requireAdmin, async (req, res) => {
     !nama_ruangan.trim() ||
     typeof lokasi !== "string" ||
     !lokasi.trim() ||
-    kapasitas === undefined ||
-    kapasitas === null ||
-    kapasitas === "" ||
-    !Number.isInteger(Number(kapasitas)) ||
-    Number(kapasitas) < 1 ||
-    Number(kapasitas) > 50
+    parsedCapacity === null
   ) {
     return res.status(400).json({
       message:
@@ -130,7 +126,7 @@ router.put("/:id", requireAuth, requireAdmin, async (req, res) => {
       `UPDATE rooms
        SET nama_ruangan = ?, kapasitas = ?, lokasi = ?
        WHERE id = ?`,
-      [nama_ruangan.trim(), Number(kapasitas), lokasi.trim(), id],
+      [nama_ruangan.trim(), parsedCapacity, lokasi.trim(), id],
     );
 
     if (result.affectedRows === 0) {

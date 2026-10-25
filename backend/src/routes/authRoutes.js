@@ -22,13 +22,23 @@ router.post("/login", async (req, res) => {
     }
 
     const loginIdentifier = identifier.trim();
-    const [rows] = await db.execute(
+    let [rows] = await db.execute(
       `SELECT id, nama, identifier, email, password_hash, role, is_active
        FROM users
-       WHERE identifier = ? OR email = ?
+       WHERE identifier = ?
        LIMIT 1`,
-      [loginIdentifier, loginIdentifier.toLowerCase()],
+      [loginIdentifier],
     );
+
+    if (rows.length === 0) {
+      [rows] = await db.execute(
+        `SELECT id, nama, identifier, email, password_hash, role, is_active
+         FROM users
+         WHERE email = ?
+         LIMIT 1`,
+        [loginIdentifier.toLowerCase()],
+      );
+    }
 
     const user = rows[0];
 
