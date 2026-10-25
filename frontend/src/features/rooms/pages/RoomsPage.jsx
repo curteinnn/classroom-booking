@@ -1,6 +1,6 @@
 import { useState } from "react";
-import Navbar from "../components/Navbar";
-import { apiRequest } from "../services/api";
+import Navbar from "../../../shared/layout/Navbar";
+import useRoomSearch from "../hooks/useRoomSearch";
 
 function localDate(date) {
   const year = date.getFullYear();
@@ -24,68 +24,11 @@ export default function Rooms() {
     kapasitas: "1",
     lokasi: "",
   });
-  const [rooms, setRooms] = useState([]);
-  const [hasSearched, setHasSearched] = useState(false);
   const [purposes, setPurposes] = useState({});
-  const [error, setError] = useState("");
-  const [notice, setNotice] = useState("");
-  const [loading, setLoading] = useState(false);
+  const { rooms, hasSearched, error, notice, loading, search, book } = useRoomSearch(filters);
 
   function updateFilter(event) {
     setFilters((current) => ({ ...current, [event.target.name]: event.target.value }));
-  }
-
-  async function searchRooms(event) {
-    event.preventDefault();
-    setError("");
-    setNotice("");
-    setHasSearched(true);
-    setLoading(true);
-
-    const query = new URLSearchParams({
-      tanggal: filters.tanggal,
-      jam_mulai: filters.jam_mulai,
-      jam_selesai: filters.jam_selesai,
-      kapasitas: filters.kapasitas,
-    });
-    if (filters.lokasi.trim()) query.set("lokasi", filters.lokasi.trim());
-
-    try {
-      const data = await apiRequest(`/api/admin/rooms/search/available?${query}`);
-      setRooms(data.rooms || []);
-    } catch (requestError) {
-      setError(requestError.message);
-      setRooms([]);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function bookRoom(room) {
-    const tujuan = (purposes[room.id] || "").trim();
-    if (!tujuan) {
-      setError("Isi tujuan peminjaman sebelum mengajukan booking.");
-      return;
-    }
-
-    setError("");
-    setNotice("");
-    try {
-      await apiRequest("/api/bookings", {
-        method: "POST",
-        body: JSON.stringify({
-          room_id: room.id,
-          tanggal: filters.tanggal,
-          jam_mulai: filters.jam_mulai,
-          jam_selesai: filters.jam_selesai,
-          tujuan,
-        }),
-      });
-      setNotice("Booking diajukan dan menunggu persetujuan admin.");
-      setRooms((current) => current.filter((item) => item.id !== room.id));
-    } catch (requestError) {
-      setError(requestError.message);
-    }
   }
 
   return (
@@ -95,7 +38,7 @@ export default function Rooms() {
         <h1 className="mb-2 text-3xl font-bold text-slate-900">Cari ruangan</h1>
         <p className="mb-6 text-slate-600">Pilih jadwal untuk melihat ruang yang tersedia.</p>
 
-        <form onSubmit={searchRooms} className="grid gap-4 rounded-2xl bg-white p-5 shadow-sm md:grid-cols-3">
+        <form onSubmit={search} className="grid gap-4 rounded-2xl bg-white p-5 shadow-sm md:grid-cols-3">
           <label className="grid gap-1 text-sm font-medium">Tanggal
             <input className="rounded-lg border p-2" type="date" name="tanggal" value={filters.tanggal} onChange={updateFilter} required />
           </label>
@@ -132,7 +75,7 @@ export default function Rooms() {
                   onChange={(event) => setPurposes((current) => ({ ...current, [room.id]: event.target.value }))}
                 />
               </label>
-              <button type="button" onClick={() => bookRoom(room)} className="mt-3 rounded-lg bg-blue-700 px-4 py-2 font-semibold text-white">
+              <button type="button" onClick={() => book(room, purposes[room.id] || "")} className="mt-3 rounded-lg bg-blue-700 px-4 py-2 font-semibold text-white">
                 Ajukan booking
               </button>
             </article>

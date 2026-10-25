@@ -12,15 +12,18 @@ Web application for account activation and classroom booking.
 
 ```text
 frontend/src/
-  pages/          Login, home, rooms, booking history, account activation
-  components/     Shared navigation
-  services/       API client and browser session storage
+  app/            Router and server-verified role guards
+  features/       Feature pages, API modules, hooks, and admin UI components
+  shared/         HTTP client, session storage, shared layout
+  assets/         Images and other static files
   animations/     GSAP page animations
 backend/src/
   app.js          Express middleware and mounted routes
   server.js       Backend process entry point
   config/         MySQL connection pool
+  controllers/    HTTP request handlers
   routes/         Auth, activation, admin, rooms, and bookings APIs
+  utils/          Shared validation helpers
   middleware/     Authentication and admin authorization
   services/       Activation token and email delivery
 ```

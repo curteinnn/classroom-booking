@@ -1,15 +1,15 @@
-import gsap from gsap;
+import gsap from "gsap";
 
-export default function homeAnimation(home){
-    const rooms = home.querySelector(".rooms")
-    const card = home.querySelecor(".card1")
-    const tl = gsap.timeline();
+export default function homeAnimation(home) {
+  if (!home) return;
 
-    tl.from(card, {
-        opacity:0,
-        y:80,
-        ease:"power3.inOut",
-        duration:3,
+  const card = home.querySelector(".card1");
+  if (!card) return;
 
-    })
+  return gsap.from(card, {
+    opacity: 0,
+    y: 80,
+    ease: "power3.inOut",
+    duration: 0.8,
+  });
 }

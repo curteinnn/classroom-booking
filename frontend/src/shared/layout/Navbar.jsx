@@ -1,10 +1,10 @@
 import { Link } from "react-router-dom";
-import logo from "../assets/logo.png";
-import { clearSession, getSession } from "../services/api";
+import logo from "../../assets/logo.png";
+import { clearSession, getSession } from "../auth/sessionStore";
 
 export default function Navbar() {
   const session = getSession();
-  const isAdmin = session?.user?.role === "admin";
+  const isAdmin = String(session?.user?.role || "").trim().toLowerCase() === "admin";
 
   return (
     <nav className="absolute top-0 h-12 left-0 z-50 w-full bg-white px-8 md:block">

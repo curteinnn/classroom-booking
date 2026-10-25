@@ -1,7 +1,7 @@
-import background from "../assets/background.JPEG";
-import Navbar from "../components/Navbar";
+import background from "../../../assets/background.JPEG";
+import Navbar from "../../../shared/layout/Navbar";
 import { Link } from "react-router-dom";
-import { getSession } from "../services/api";
+import { getSession } from "../../../shared/auth/sessionStore";
 
 export default function Home() {
   const user = getSession()?.user;

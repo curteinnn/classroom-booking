@@ -1,42 +1,17 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { apiRequest } from "../services/api";
+import useAccountActivation from "../hooks/useAccountActivation";
 
 export default function ActivateAccount() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token") || "";
   const [password, setPassword] = useState("");
   const [confirmation, setConfirmation] = useState("");
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const { error, message, loading, submit } = useAccountActivation(token);
 
   async function completeActivation(event) {
     event.preventDefault();
-    setMessage("");
-    setError("");
-
-    if (!token) {
-      setError("Token aktivasi tidak ditemukan pada tautan.");
-      return;
-    }
-    if (password !== confirmation) {
-      setError("Konfirmasi password tidak sama.");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const data = await apiRequest("/api/activation/complete", {
-        method: "POST",
-        body: JSON.stringify({ token, password }),
-      });
-      setMessage(data.message || "Aktivasi berhasil.");
-    } catch (requestError) {
-      setError(requestError.message);
-    } finally {
-      setLoading(false);
-    }
+    await submit(password, confirmation);
   }
 
   return (

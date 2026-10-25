@@ -1,52 +1,36 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
-import background from "../assets/background.JPEG";
-import objek1 from "../assets/object1.png";
-import unindra from "../assets/unindra.png";
+import background from "../../../assets/background.JPEG";
+import objek1 from "../../../assets/object1.png";
+import unindra from "../../../assets/unindra.png";
 
-import loginAnimation from "../animations/loginAnimation";
-import { apiRequest, saveSession } from "../services/api";
+import loginAnimation from "../../../animations/loginAnimation";
+import useLogin from "../hooks/useLogin";
 
 export default function Login() {
   const navigate = useNavigate();
 
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const { error, loading, submit } = useLogin();
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    setError("");
-    setLoading(true);
+    const data = await submit({ identifier, password });
+    if (!data) return;
 
-    try {
-      const data = await apiRequest("/api/auth/login", {
-        method: "POST",
-        body: JSON.stringify({
-          identifier,
-          password,
-        }),
-      });
-      saveSession(data);
-      const destination = data.user?.role === "admin" ? "/admin" : "/home";
-      gsap.to(".login-card", {
-        opacity: 0,
-        duration: 1.5,
-        ease: "power3.in",
-        onComplete: () => {
-          navigate(destination);
-        },
-      });
-    } catch (error) {
-      setError(error.message);
-    } finally {
-      setLoading(false);
-    }
+    const destination = String(data.user?.role || "").trim().toLowerCase() === "admin"
+      ? "/admin"
+      : "/home";
+    gsap.to(".login-card", {
+      opacity: 0,
+      duration: 1.5,
+      ease: "power3.in",
+      onComplete: () => navigate(destination),
+    });
   };
 
   const container = useRef(null);

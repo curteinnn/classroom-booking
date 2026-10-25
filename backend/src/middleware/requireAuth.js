@@ -32,7 +32,7 @@ async function requireAuth(req, res, next) {
 
     const user = rows[0];
 
-    if (!user || user.is_active !== 1) {
+    if (!user || Number(user.is_active) !== 1) {
       return res.status(401).json({
         message: "Akun tidak ditemukan atau sudah nonaktif.",
       });
@@ -43,7 +43,7 @@ async function requireAuth(req, res, next) {
       nama: user.nama,
       identifier: user.identifier,
       email: user.email,
-      role: user.role,
+      role: String(user.role || "").trim().toLowerCase(),
     };
 
     next();
