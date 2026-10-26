@@ -92,7 +92,11 @@ export default function Login() {
               disabled={view.loading || view.isTransitioning}
               className="login-button w-full rounded-xl bg-blue-600 py-3 font-medium text-white disabled:opacity-50"
             >
-              {view.loading ? "Memeriksa akun..." : view.isTransitioning ? "Membuka dashboard..." : "Login"}
+              {view.loading
+                ? "Memeriksa akun..."
+                : view.isTransitioning
+                  ? "Membuka dashboard..."
+                  : "Login"}
             </button>
           </form>
         </div>
@@ -100,7 +104,7 @@ export default function Login() {
       <div
         ref={view.transitionRef}
         aria-hidden="true"
-        className="pointer-events-none fixed inset-0 z-[100] bg-gradient-to-br from-blue-600 via-indigo-700 to-slate-950"
+        className="pointer-events-none fixed inset-0 z-[100] bg-gradient-to-br from-blue-600 via-white to-slate-950"
         style={{ clipPath: "circle(0% at 50% 50%)" }}
       />
     </>

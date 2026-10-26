@@ -42,7 +42,9 @@ export default function useRoomSearch(filters) {
         jam_selesai: filters.jam_selesai,
         tujuan,
       });
-      setNotice(data.message || "Booking diajukan dan menunggu persetujuan admin.");
+      setNotice(
+        data.message || "Booking diajukan dan menunggu persetujuan admin.",
+      );
       setRooms((current) => current.filter((item) => item.id !== room.id));
     } catch (requestError) {
       setError(requestError.message);

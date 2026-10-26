@@ -13,10 +13,38 @@ function App() {
       <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route path="/activate" element={<ActivateAccountPage />} />
-        <Route path="/home" element={<RoleRoute allowedRoles={["mahasiswa", "dosen"]}><HomePage /></RoleRoute>} />
-        <Route path="/rooms" element={<RoleRoute allowedRoles={["mahasiswa", "dosen"]}><RoomsPage /></RoleRoute>} />
-        <Route path="/riwayat" element={<RoleRoute allowedRoles={["mahasiswa", "dosen"]}><BookingHistoryPage /></RoleRoute>} />
-        <Route path="/admin" element={<RoleRoute allowedRoles={["admin"]}><AdminDashboardPage /></RoleRoute>} />
+        <Route
+          path="/home"
+          element={
+            <RoleRoute allowedRoles={["mahasiswa", "dosen"]}>
+              <HomePage />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="/rooms"
+          element={
+            <RoleRoute allowedRoles={["mahasiswa", "dosen"]}>
+              <RoomsPage />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="/riwayat"
+          element={
+            <RoleRoute allowedRoles={["mahasiswa", "dosen"]}>
+              <BookingHistoryPage />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <RoleRoute allowedRoles={["admin"]}>
+              <AdminDashboardPage />
+            </RoleRoute>
+          }
+        />
         <Route path="*" element={<Navigate to="/home" replace />} />
       </Routes>
     </BrowserRouter>

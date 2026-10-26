@@ -19,21 +19,42 @@ function defaultBookingDate() {
 export default function useRoomsPage() {
   const pageRef = useRef(null);
   usePageAnimations(pageRef);
-  const [filters, setFilters] = useState({ tanggal: defaultBookingDate(), jam_mulai: "09:00", jam_selesai: "10:00", kapasitas: "1", lokasi: "" });
+  const [filters, setFilters] = useState({
+    tanggal: defaultBookingDate(),
+    jam_mulai: "09:00",
+    jam_selesai: "10:00",
+    kapasitas: "1",
+    lokasi: "",
+  });
   const [purposes, setPurposes] = useState({});
   const roomSearch = useRoomSearch(filters);
 
   function handleFilterChange(event) {
-    setFilters((current) => ({ ...current, [event.target.name]: event.target.value }));
+    setFilters((current) => ({
+      ...current,
+      [event.target.name]: event.target.value,
+    }));
   }
+
   function handlePurposeChange(event) {
     const roomId = event.target.dataset.roomId;
     setPurposes((current) => ({ ...current, [roomId]: event.target.value }));
   }
+
   function handleBookClick(event) {
-    const room = roomSearch.rooms.find(({ id }) => String(id) === event.currentTarget.dataset.roomId);
+    const room = roomSearch.rooms.find(
+      ({ id }) => String(id) === event.currentTarget.dataset.roomId,
+    );
     if (room) roomSearch.book(room, purposes[room.id] || "");
   }
 
-  return { ...roomSearch, pageRef, filters, purposes, handleFilterChange, handlePurposeChange, handleBookClick };
+  return {
+    ...roomSearch,
+    pageRef,
+    filters,
+    purposes,
+    handleFilterChange,
+    handlePurposeChange,
+    handleBookClick,
+  };
 }

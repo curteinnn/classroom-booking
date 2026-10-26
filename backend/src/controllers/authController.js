@@ -63,7 +63,9 @@ async function login(req, res) {
       });
     }
 
-    const role = String(user.role || "").trim().toLowerCase();
+    const role = String(user.role || "")
+      .trim()
+      .toLowerCase();
     const token = jwt.sign(
       { id: user.id, identifier: user.identifier, role },
       process.env.JWT_SECRET,

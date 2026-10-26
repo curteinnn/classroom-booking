@@ -62,7 +62,9 @@ export default function useAdminDashboard() {
       .finally(() => {
         if (active) setLoading(false);
       });
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, [applyDashboardData]);
 
   async function runAction(action, fallbackMessage) {
@@ -115,17 +117,24 @@ export default function useAdminDashboard() {
   }
 
   function handleUserStatus(event) {
-    const user = users.find(({ id }) => String(id) === event.currentTarget.dataset.userId);
+    const user = users.find(
+      ({ id }) => String(id) === event.currentTarget.dataset.userId,
+    );
     if (user) toggleUser(user);
   }
 
   function handleBookingReasonChange(event) {
     const bookingId = event.target.dataset.bookingId;
-    setRejectionReasons((current) => ({ ...current, [bookingId]: event.target.value }));
+    setRejectionReasons((current) => ({
+      ...current,
+      [bookingId]: event.target.value,
+    }));
   }
 
   function handleBookingReview(event) {
-    const booking = bookings.find(({ id }) => String(id) === event.currentTarget.dataset.bookingId);
+    const booking = bookings.find(
+      ({ id }) => String(id) === event.currentTarget.dataset.bookingId,
+    );
     if (booking) reviewBooking(booking, event.currentTarget.dataset.status);
   }
 
@@ -157,7 +166,10 @@ export default function useAdminDashboard() {
 
   async function removeRoom(room) {
     if (!window.confirm(`Hapus ruangan ${room.nama_ruangan}?`)) return;
-    await runAction(() => deleteAdminRoom(room.id), "Ruangan berhasil dihapus.");
+    await runAction(
+      () => deleteAdminRoom(room.id),
+      "Ruangan berhasil dihapus.",
+    );
   }
 
   async function toggleRoom(room) {
@@ -169,7 +181,10 @@ export default function useAdminDashboard() {
 
   async function submitUser(event) {
     event.preventDefault();
-    const created = await runAction(() => createAdminUser(userForm), "Akun pengguna dibuat.");
+    const created = await runAction(
+      () => createAdminUser(userForm),
+      "Akun pengguna dibuat.",
+    );
     if (created) setUserForm(emptyUser);
   }
 
@@ -200,13 +215,27 @@ export default function useAdminDashboard() {
 
   const filteredUsers = users.filter((user) => {
     const query = userSearch.trim().toLowerCase();
-    const matchesQuery = !query || [user.nama, user.identifier, user.email].some((value) => String(value || "").toLowerCase().includes(query));
-    const matchesRole = userRoleFilter === "all" || user.role === userRoleFilter;
+    const matchesQuery =
+      !query ||
+      [user.nama, user.identifier, user.email].some((value) =>
+        String(value || "")
+          .toLowerCase()
+          .includes(query),
+      );
+    const matchesRole =
+      userRoleFilter === "all" || user.role === userRoleFilter;
     return matchesQuery && matchesRole;
   });
-  const filteredBookings = bookings.filter((booking) => booking.status === bookingStatus);
+  const filteredBookings = bookings.filter(
+    (booking) => booking.status === bookingStatus,
+  );
   const dashboardStats = getDashboardStats({ rooms, users, bookings });
-  const menuCounts = { rooms: rooms.length, users: users.length, bookings: bookings.length, pending: dashboardStats.bookingCounts.pending };
+  const menuCounts = {
+    rooms: rooms.length,
+    users: users.length,
+    bookings: bookings.length,
+    pending: dashboardStats.bookingCounts.pending,
+  };
 
   return {
     stats: dashboardStats.summary,

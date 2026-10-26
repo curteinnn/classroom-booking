@@ -43,7 +43,9 @@ async function requireAuth(req, res, next) {
       nama: user.nama,
       identifier: user.identifier,
       email: user.email,
-      role: String(user.role || "").trim().toLowerCase(),
+      role: String(user.role || "")
+        .trim()
+        .toLowerCase(),
     };
 
     next();
