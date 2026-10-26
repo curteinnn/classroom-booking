@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { usePageAnimations } from "../../../animations/cardAnimations";
+import { useSearchModeAnimation } from "../../../animations/searchAnimations";
 import useRoomSearch from "./useRoomSearch";
 
 function localDate(date) {
@@ -18,7 +18,12 @@ function defaultBookingDate() {
 
 export default function useRoomsPage() {
   const pageRef = useRef(null);
+  const searchPanelRef = useRef(null);
+  const activeModeRef = useRef("time");
   usePageAnimations(pageRef);
+  const [mode, setMode] = useState("time");
+  const [roomName, setRoomName] = useState("");
+  useSearchModeAnimation(searchPanelRef, mode);
   const [filters, setFilters] = useState({
     tanggal: defaultBookingDate(),
     jam_mulai: "09:00",
@@ -27,13 +32,31 @@ export default function useRoomsPage() {
     lokasi: "",
   });
   const [purposes, setPurposes] = useState({});
-  const roomSearch = useRoomSearch(filters);
+  const roomSearch = useRoomSearch(filters, activeModeRef);
+
+  function handleModeSelect(event) {
+    const nextMode = event.currentTarget.dataset.mode;
+    if (nextMode === mode) return;
+    activeModeRef.current = nextMode;
+    setMode(nextMode);
+    roomSearch.clearResults();
+  }
+
+  function handleRoomNameChange(event) {
+    setRoomName(event.target.value);
+    roomSearch.clearResults();
+  }
 
   function handleFilterChange(event) {
     setFilters((current) => ({
       ...current,
       [event.target.name]: event.target.value,
     }));
+    roomSearch.clearResults();
+  }
+
+  function handleSearch(event) {
+    return roomSearch.search(event, { mode, roomName });
   }
 
   function handlePurposeChange(event) {
@@ -51,9 +74,15 @@ export default function useRoomsPage() {
   return {
     ...roomSearch,
     pageRef,
+    searchPanelRef,
+    mode,
+    roomName,
     filters,
     purposes,
     handleFilterChange,
+    handleModeSelect,
+    handleRoomNameChange,
+    handleSearch,
     handlePurposeChange,
     handleBookClick,
   };

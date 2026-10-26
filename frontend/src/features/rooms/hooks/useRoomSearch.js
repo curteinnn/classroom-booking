@@ -1,37 +1,76 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { createBooking } from "../../bookings/bookingsApi";
-import { searchAvailableRooms } from "../roomsApi";
+import { searchAvailableRooms, searchRoomsByName } from "../roomsApi";
 
-export default function useRoomSearch(filters) {
+export default function useRoomSearch(filters, activeModeRef) {
   const [rooms, setRooms] = useState([]);
   const [hasSearched, setHasSearched] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [loading, setLoading] = useState(false);
+  const [bookingRoomId, setBookingRoomId] = useState(null);
+  const searchInProgress = useRef(false);
+  const searchRevision = useRef(0);
+  const bookingInProgress = useRef(false);
 
-  async function search(event) {
+  function clearResults() {
+    searchRevision.current += 1;
+    setRooms([]);
+    setHasSearched(false);
+    setError("");
+    setNotice("");
+  }
+
+  async function search(event, { mode, roomName }) {
     event.preventDefault();
+    if (searchInProgress.current) return;
+    if (mode === "room" && !roomName.trim()) {
+      setError("Masukkan nama ruang untuk memulai pencarian.");
+      return;
+    }
+
+    searchInProgress.current = true;
+    const revision = ++searchRevision.current;
     setError("");
     setNotice("");
     setHasSearched(true);
+    setRooms([]);
     setLoading(true);
     try {
-      const data = await searchAvailableRooms(filters);
-      setRooms(data.rooms || []);
+      let resultRooms;
+      if (mode === "room") {
+        const [availableData, namedData] = await Promise.all([
+          searchAvailableRooms(filters),
+          searchRoomsByName(roomName),
+        ]);
+        const availableIds = new Set((availableData.rooms || []).map((room) => String(room.id)));
+        resultRooms = (namedData.rooms || []).filter((room) => availableIds.has(String(room.id)));
+      } else {
+        const availableData = await searchAvailableRooms(filters);
+        resultRooms = availableData.rooms || [];
+      }
+
+      if (searchRevision.current === revision && activeModeRef.current === mode) setRooms(resultRooms);
     } catch (requestError) {
-      setError(requestError.message);
-      setRooms([]);
+      if (searchRevision.current === revision && activeModeRef.current === mode) {
+        setError(requestError.message);
+        setRooms([]);
+      }
     } finally {
+      searchInProgress.current = false;
       setLoading(false);
     }
   }
 
   async function book(room, purpose) {
+    if (bookingInProgress.current) return;
     const tujuan = purpose.trim();
     if (!tujuan) {
       setError("Isi tujuan peminjaman sebelum mengajukan booking.");
       return;
     }
+    bookingInProgress.current = true;
+    setBookingRoomId(room.id);
     setError("");
     setNotice("");
     try {
@@ -42,14 +81,15 @@ export default function useRoomSearch(filters) {
         jam_selesai: filters.jam_selesai,
         tujuan,
       });
-      setNotice(
-        data.message || "Booking diajukan dan menunggu persetujuan admin.",
-      );
+      setNotice(data.message || "Booking diajukan dan menunggu persetujuan admin.");
       setRooms((current) => current.filter((item) => item.id !== room.id));
     } catch (requestError) {
       setError(requestError.message);
+    } finally {
+      bookingInProgress.current = false;
+      setBookingRoomId(null);
     }
   }
 
-  return { rooms, hasSearched, error, notice, loading, search, book };
+  return { rooms, hasSearched, error, notice, loading, bookingRoomId, search, book, clearResults };
 }

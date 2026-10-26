@@ -6,9 +6,9 @@ export default function BookingHistoryPage() {
     useBookingHistory();
 
   return (
-    <main ref={pageRef} className="min-h-screen bg-slate-50 pt-16">
+    <main ref={pageRef} className="app-background min-h-[100dvh] pt-16 md:pl-64 md:pt-8">
       <Navbar />
-      <section className="mx-auto max-w-5xl px-5 py-8">
+      <section className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:py-10">
         <h1
           data-motion="heading"
           className="mb-6 text-3xl font-bold text-slate-900"

@@ -11,3 +11,8 @@ export function searchAvailableRooms(filters) {
 
   return apiRequest(`/api/admin/rooms/search/available?${query}`);
 }
+
+export function searchRoomsByName(name) {
+  const query = new URLSearchParams({ nama_ruangan: name.trim() });
+  return apiRequest(`/api/admin/rooms/search?${query}`);
+}

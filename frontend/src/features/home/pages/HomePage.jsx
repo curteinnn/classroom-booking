@@ -1,4 +1,3 @@
-import background from "../../../assets/background.JPEG";
 import Navbar from "../../../shared/layout/Navbar";
 import { Link } from "react-router-dom";
 import useHomePage from "../hooks/useHomePage";
@@ -7,13 +6,9 @@ export default function Home() {
   const { pageRef, user } = useHomePage();
 
   return (
-    <main
-      ref={pageRef}
-      className="min-h-screen relative flex bg-cover"
-      style={{ backgroundImage: `url(${background})` }}
-    >
+    <main ref={pageRef} className="app-background min-h-[100dvh] relative flex">
       <Navbar />
-      <div className="flex min-h-screen w-full items-center justify-center px-6 pt-16">
+      <div className="flex min-h-[100dvh] w-full items-center justify-center px-4 pb-8 pt-20 md:pl-64 md:pt-8">
         <div className="w-full max-w-5xl py-10">
           <section
             data-motion="heading"

@@ -28,17 +28,7 @@ const menus = [
 export default function AdminMenuCards({ activeSection, counts, onSelect }) {
   return (
     <section aria-labelledby="admin-menu-title">
-      <div className="mb-3">
-        <h2
-          id="admin-menu-title"
-          className="text-lg font-semibold text-slate-900"
-        >
-          Menu administrasi
-        </h2>
-        <p className="mt-1 text-sm text-slate-500">
-          Pilih area yang ingin Anda kelola.
-        </p>
-      </div>
+      <div className="mb-3"></div>
       <div className="grid gap-4 lg:grid-cols-3">
         {menus.map((menu) => (
           <button

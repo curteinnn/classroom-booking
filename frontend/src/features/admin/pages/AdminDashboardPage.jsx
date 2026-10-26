@@ -12,24 +12,61 @@ export default function AdminDashboardPage() {
   const dashboard = useAdminDashboard();
 
   return (
-    <main ref={pageRef} className="min-h-screen bg-slate-50 pt-16">
+    <main
+      ref={pageRef}
+      className="app-background min-h-[100dvh] pt-16 md:pl-64 md:pt-8"
+    >
       <Navbar />
-      <div className="mx-auto max-w-7xl space-y-8 px-5 py-8">
-        <header data-motion="heading" className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+      <div className="mx-auto max-w-7xl space-y-8 px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
+        <header
+          data-motion="heading"
+          className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end"
+        >
           <div>
-            <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">SmartClass &middot; Admin</p>
-            <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-900">Dashboard admin</h1>
-            <p className="mt-2 max-w-2xl text-slate-600">Pantau operasional ruang kelas dan proses booking dari satu tempat.</p>
+            <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-900">
+              Dashboard admin
+            </h1>
+            <p className="mt-2 max-w-2xl text-slate-600">
+              Pantau operasional ruang kelas dan proses booking dari satu
+              tempat.
+            </p>
           </div>
-          <span className="w-fit rounded-full bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-800">Administrator</span>
+          <span className="w-fit rounded-full bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-800">
+            Administrator
+          </span>
         </header>
 
-        {dashboard.error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{dashboard.error}</p>}
-        {dashboard.notice && <p role="status" className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">{dashboard.notice}</p>}
-        {dashboard.loading && <p className="rounded-xl bg-white p-4 text-sm text-slate-500" role="status">Memuat data dashboard...</p>}
+        {dashboard.error && (
+          <p
+            role="alert"
+            className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800"
+          >
+            {dashboard.error}
+          </p>
+        )}
+        {dashboard.notice && (
+          <p
+            role="status"
+            className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800"
+          >
+            {dashboard.notice}
+          </p>
+        )}
+        {dashboard.loading && (
+          <p
+            className="rounded-xl bg-white p-4 text-sm text-slate-500"
+            role="status"
+          >
+            Memuat data dashboard...
+          </p>
+        )}
 
         <DashboardStats stats={dashboard.stats} />
-        <AdminMenuCards activeSection={dashboard.activeSection} counts={dashboard.menuCounts} onSelect={dashboard.handleSectionSelect} />
+        <AdminMenuCards
+          activeSection={dashboard.activeSection}
+          counts={dashboard.menuCounts}
+          onSelect={dashboard.handleSectionSelect}
+        />
 
         {dashboard.activeSection === "rooms" && (
           <RoomManagementPanel
