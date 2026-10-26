@@ -22,7 +22,7 @@ export default function Login() {
             className="hidden lg:block absolute -right-40 top-25 w-100 z-10 md:block md:-right-30"
           />
 
-          <div ref={view.cardRef} className="auth-card h-[460px] w-full">
+          <div ref={view.cardRef} className="auth-card h-115 w-full">
             <section
               className="auth-face auth-face--front rounded-2xl bg-white p-8 shadow-2xl"
               aria-hidden={!isLoginView}
@@ -125,7 +125,7 @@ export default function Login() {
       <div
         ref={view.transitionRef}
         aria-hidden="true"
-        className="pointer-events-none fixed inset-0 z-[100] bg-gradient-to-br from-blue-600 via-white to-slate-950"
+        className="pointer-events-none fixed inset-0 z-100 bg-linear-to-br from-blue-600 via-white to-slate-950"
         style={{ clipPath: "circle(0% at 50% 50%)" }}
       />
     </>

@@ -27,7 +27,7 @@ export default function Rooms() {
   return (
     <main
       ref={pageRef}
-      className="app-background min-h-[100dvh] pt-16 md:pl-64 md:pt-8"
+      className="app-background min-h-dvh pt-16 md:pl-64 md:pt-8"
     >
       <Navbar />
       <section className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
