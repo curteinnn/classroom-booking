@@ -10,14 +10,26 @@ export default function useNavbar() {
   const backdropRef = useRef(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const session = getSession();
-  const isAdmin = String(session?.user?.role || "").trim().toLowerCase() === "admin";
-  const links = (isAdmin
-    ? [{ label: "Dashboard admin", path: "/admin" }]
-    : [{ label: "Beranda", path: "/home" }, { label: "Ruangan", path: "/rooms" }, { label: "Riwayat", path: "/riwayat" }])
-    .map((link) => ({ ...link, isActive: pathname === link.path }));
+  const isAdmin =
+    String(session?.user?.role || "")
+      .trim()
+      .toLowerCase() === "admin";
+  const links = (
+    isAdmin
+      ? [{ label: "Dashboard admin", path: "/admin" }]
+      : [
+          { label: "Beranda", path: "/home" },
+          { label: "Ruangan", path: "/rooms" },
+          { label: "Riwayat", path: "/riwayat" },
+        ]
+  ).map((link) => ({ ...link, isActive: pathname === link.path }));
 
   useEffect(() => {
-    const timeline = animateMobileNavigation(mobilePanelRef.current, backdropRef.current, isMobileMenuOpen);
+    const timeline = animateMobileNavigation(
+      mobilePanelRef.current,
+      backdropRef.current,
+      isMobileMenuOpen,
+    );
     return () => timeline?.kill();
   }, [isMobileMenuOpen]);
 
@@ -44,7 +56,8 @@ export default function useNavbar() {
       setIsMobileMenuOpen(false);
     }
     window.addEventListener("popstate", closeAfterHistoryNavigation);
-    return () => window.removeEventListener("popstate", closeAfterHistoryNavigation);
+    return () =>
+      window.removeEventListener("popstate", closeAfterHistoryNavigation);
   }, []);
 
   function toggleMobileMenu() {
