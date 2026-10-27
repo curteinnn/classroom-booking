@@ -26,7 +26,7 @@ export default function SignupPage({ view, isActive }) {
 
       <form
         onSubmit={view.handleSignupSubmit}
-        className="login-form w-60 space-y-5 md:w-80"
+        className="login-form w-full max-w-60 space-y-5 md:max-w-80"
       >
         <div>
           <label

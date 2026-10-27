@@ -12,17 +12,20 @@ export default function Login() {
     <>
       <main
         ref={view.containerRef}
-        className="min-h-screen flex items-center justify-center px-6 bg-cover"
+        className="flex min-h-[100dvh] items-center justify-center bg-cover px-3 py-4 sm:px-6"
         style={{ backgroundImage: `url(${background})` }}
       >
-        <div className="relative m-10 w-80 md:w-150">
+        <div className="relative my-4 w-full max-w-80 sm:my-6 md:m-10 md:w-150 md:max-w-none">
           <img
             src={objek1}
             alt=""
             className="hidden lg:block absolute -right-40 top-25 w-100 z-10 md:block md:-right-30"
           />
 
-          <div ref={view.cardRef} className="auth-card h-115 w-full">
+          <div
+            ref={view.cardRef}
+            className="auth-card h-[min(28.75rem,calc(100dvh-4rem))] w-full sm:h-[min(28.75rem,calc(100dvh-5rem))] md:h-[min(28.75rem,calc(100dvh-7rem))]"
+          >
             <section
               className="auth-face auth-face--front rounded-2xl bg-white p-8 shadow-2xl"
               aria-hidden={!isLoginView}
@@ -47,7 +50,7 @@ export default function Login() {
 
               <form
                 onSubmit={view.handleLoginSubmit}
-                className="login-form w-60 space-y-5 md:w-80"
+                className="login-form w-full max-w-60 space-y-5 md:max-w-80"
               >
                 <div>
                   <label
