@@ -1,5 +1,5 @@
 import background from "../../../assets/background.JPEG";
-import objek1 from "../../../assets/object1.png";
+import ilustrasiAnimasi from "../../../assets/ilustrasi-animasi.svg";
 import unindra from "../../../assets/unindra.png";
 import useLoginPage from "../hooks/useLoginPage";
 import SignupPage from "./SignupPage";
@@ -17,9 +17,9 @@ export default function Login() {
       >
         <div className="relative m-10 w-80 md:w-150">
           <img
-            src={objek1}
+            src={ilustrasiAnimasi}
             alt=""
-            className="hidden lg:block absolute -right-40 top-25 w-100 z-10 md:block md:-right-30"
+            className="absolute -right-36 top-24 z-10 hidden w-64 md:hidden lg:block xl:w-80"
           />
 
           <div ref={view.cardRef} className="auth-card h-115 w-full">
