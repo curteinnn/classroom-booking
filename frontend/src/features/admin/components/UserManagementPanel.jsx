@@ -102,7 +102,7 @@ export default function UserManagementPanel({
             <article
               data-motion="card"
               key={user.id}
-              className="flex items-center justify-between gap-3 py-3 transition-colors hover:bg-slate-50"
+              className="flex items-center justify-between gap-3 py-3 transition-colors"
             >
               <div className="min-w-0">
                 <p className="truncate font-medium">

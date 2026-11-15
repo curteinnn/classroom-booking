@@ -57,13 +57,36 @@ export function usePageAnimations(scope) {
     const cleanups = [];
     const bound = new WeakSet();
     const animated = new WeakSet(root.querySelectorAll('[data-motion="card"]'));
-    const addInteraction = (element, selector, enterVars, leaveVars) => {
+    const getHoverBackground = (element, isCard) => {
+      if (isCard) return "#f8fafc";
+
+      const background = getComputedStyle(element).backgroundColor;
+      const channels = background.match(/[\d.]+/g)?.map(Number);
+      if (!channels || channels.length < 3 || channels[3] === 0) return null;
+
+      const values = channels
+        .slice(0, 3)
+        .map((channel) => Math.round(channel * 0.94));
+      return `rgb(${values.join(", ")})`;
+    };
+    const addInteraction = (element, selector, isCard) => {
       if (!element.matches(selector) || bound.has(element)) return;
       bound.add(element);
+      const baseBackground = getComputedStyle(element).backgroundColor;
+      const hoverBackground = getHoverBackground(element, isCard);
+      if (!hoverBackground) return;
       const enter = () =>
-        gsap.to(element, { ...enterVars, duration: 0.2, ease: "power2.out" });
+        gsap.to(element, {
+          backgroundColor: hoverBackground,
+          duration: 0.2,
+          ease: "power2.out",
+        });
       const leave = () =>
-        gsap.to(element, { ...leaveVars, duration: 0.24, ease: "power2.out" });
+        gsap.to(element, {
+          backgroundColor: baseBackground,
+          duration: 0.24,
+          ease: "power2.out",
+        });
       element.addEventListener("mouseenter", enter);
       element.addEventListener("mouseleave", leave);
       cleanups.push(() => {
@@ -73,22 +96,8 @@ export function usePageAnimations(scope) {
     };
     const bindTree = (element) => {
       [element, ...element.querySelectorAll("*")].forEach((node) => {
-        addInteraction(
-          node,
-          '[data-motion="card"]',
-          {
-            y: -4,
-            scale: 1.01,
-            boxShadow: "0 18px 42px rgba(15, 23, 42, 0.13)",
-          },
-          { y: 0, scale: 1, clearProps: "boxShadow" },
-        );
-        addInteraction(
-          node,
-          '[data-motion="button"]',
-          { y: -2, scale: 1.025 },
-          { y: 0, scale: 1 },
-        );
+        addInteraction(node, '[data-motion="card"]', true);
+        addInteraction(node, '[data-motion="button"]', false);
       });
     };
     bindTree(root);

@@ -1,5 +1,5 @@
 import background from "../../../assets/background.JPEG";
-import objek1 from "../../../assets/object1.png";
+import ilustrasiAnimasi from "../../../assets/ilustrasi-animasi.svg";
 import unindra from "../../../assets/unindra.png";
 import useLoginPage from "../hooks/useLoginPage";
 import SignupPage from "./SignupPage";
@@ -12,20 +12,17 @@ export default function Login() {
     <>
       <main
         ref={view.containerRef}
-        className="flex min-h-[100dvh] items-center justify-center bg-cover px-3 py-4 sm:px-6"
+        className="min-h-screen flex items-center justify-center px-6 bg-cover"
         style={{ backgroundImage: `url(${background})` }}
       >
-        <div className="relative my-4 w-full max-w-80 sm:my-6 md:m-10 md:w-150 md:max-w-none">
+        <div className="relative m-10 w-80 md:w-150">
           <img
-            src={objek1}
+            src={ilustrasiAnimasi}
             alt=""
-            className="hidden lg:block absolute -right-40 top-25 w-100 z-10 md:block md:-right-30"
+            className="absolute -right-36 top-24 z-10 hidden w-64 md:hidden lg:block xl:w-80"
           />
 
-          <div
-            ref={view.cardRef}
-            className="auth-card h-[min(28.75rem,calc(100dvh-4rem))] w-full sm:h-[min(28.75rem,calc(100dvh-5rem))] md:h-[min(28.75rem,calc(100dvh-7rem))]"
-          >
+          <div ref={view.cardRef} className="auth-card h-115 w-full">
             <section
               className="auth-face auth-face--front rounded-2xl bg-white p-8 shadow-2xl"
               aria-hidden={!isLoginView}
@@ -50,7 +47,7 @@ export default function Login() {
 
               <form
                 onSubmit={view.handleLoginSubmit}
-                className="login-form w-full max-w-60 space-y-5 md:max-w-80"
+                className="login-form w-60 space-y-5 md:w-80"
               >
                 <div>
                   <label
