@@ -38,7 +38,7 @@ export default function AdminMenuCards({ activeSection, counts, onSelect }) {
             type="button"
             aria-pressed={activeSection === menu.id}
             onClick={onSelect}
-            className={`group rounded-2xl border bg-white p-5 text-left shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 ${activeSection === menu.id ? "border-blue-500 ring-1 ring-blue-500" : "border-slate-200"}`}
+            className={`rounded-2xl border bg-white p-5 text-left shadow-sm transition-colors duration-200 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 ${activeSection === menu.id ? "border-blue-500 ring-1 ring-blue-500" : "border-slate-200"}`}
           >
             <div className="flex items-start justify-between gap-3">
               <span
@@ -69,10 +69,7 @@ export default function AdminMenuCards({ activeSection, counts, onSelect }) {
               {menu.id === "bookings"
                 ? `${counts.pending} pending · buka booking`
                 : `Buka ${menu.id === "rooms" ? "ruang" : "pengguna"}`}
-              <span
-                aria-hidden="true"
-                className="transition-transform group-hover:translate-x-1"
-              >
+              <span aria-hidden="true">
                 →
               </span>
             </span>

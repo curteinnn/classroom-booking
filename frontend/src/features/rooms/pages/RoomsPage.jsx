@@ -27,7 +27,7 @@ export default function Rooms() {
   return (
     <main
       ref={pageRef}
-      className="app-background min-h-dvh pt-16 md:pl-64 md:pt-8"
+      className="bg-linear-to-br from-white to-blue-300 min-h-dvh pt-16 md:pl-64 md:pt-8"
     >
       <Navbar />
       <section className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
@@ -160,7 +160,7 @@ export default function Rooms() {
                   type="button"
                   onClick={handleBookClick}
                   disabled={bookingRoomId !== null}
-                  className="mt-4 rounded-xl bg-blue-700 px-4 py-2.5 font-semibold text-white transition hover:bg-blue-800 disabled:cursor-wait disabled:opacity-60"
+                  className="mt-4 rounded-xl bg-blue-950 px-4 py-2.5 font-semibold text-white transition hover:bg-blue-800 disabled:cursor-wait disabled:opacity-60"
                 >
                   {bookingRoomId === room.id
                     ? "Mengirim pengajuan..."
