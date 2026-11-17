@@ -67,11 +67,6 @@ export default function SignupPage({ view, isActive }) {
           />
         </div>
 
-        {view.signupError && (
-          <p role="alert" className="text-sm text-red-500">
-            {view.signupError}
-          </p>
-        )}
         {view.signupNotice && (
           <p role="status" className="text-sm text-neutral-600">
             {view.signupNotice}
