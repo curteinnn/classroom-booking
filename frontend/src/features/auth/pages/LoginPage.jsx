@@ -7,6 +7,7 @@ import SignupPage from "./SignupPage";
 export default function Login() {
   const view = useLoginPage();
   const isLoginView = view.authView === "login";
+  const errorMessage = isLoginView ? view.error : view.signupError;
 
   return (
     <>
@@ -19,7 +20,7 @@ export default function Login() {
           <img
             src={ilustrasiAnimasi}
             alt=""
-            className="absolute -right-36 top-24 z-10 hidden w-64 md:hidden lg:block xl:w-80"
+            className="absolute -right-36 top-15 z-10 hidden w-[30rem] s:hidden lg:block"
           />
 
           <div ref={view.cardRef} className="auth-card h-115 w-full">
@@ -87,12 +88,6 @@ export default function Login() {
                   />
                 </div>
 
-                {view.error && (
-                  <p role="alert" className="text-sm text-red-500">
-                    {view.error}
-                  </p>
-                )}
-
                 <button
                   type="submit"
                   disabled={
@@ -122,6 +117,14 @@ export default function Login() {
           </div>
         </div>
       </main>
+      {errorMessage && (
+        <div
+          role="alert"
+          className="fixed left-1/2 top-4 z-[110] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800 shadow-lg"
+        >
+          {errorMessage}
+        </div>
+      )}
       <div
         ref={view.transitionRef}
         aria-hidden="true"

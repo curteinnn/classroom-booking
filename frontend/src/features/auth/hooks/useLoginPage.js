@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import { useNavigate } from "react-router-dom";
 import { flipAuthCard, playLoginTransition, setupAuthAnimations } from "../../../animations/authAnimations";
@@ -21,6 +21,12 @@ export default function useLoginPage() {
   const [signupError, setSignupError] = useState("");
   const [signupNotice, setSignupNotice] = useState("");
   const { error, loading, submit } = useLogin();
+
+  useEffect(() => {
+    if (!signupError) return undefined;
+    const timeoutId = window.setTimeout(() => setSignupError(""), 3000);
+    return () => window.clearTimeout(timeoutId);
+  }, [signupError]);
 
   useGSAP(() => setupAuthAnimations(containerRef.current), { scope: containerRef });
 
